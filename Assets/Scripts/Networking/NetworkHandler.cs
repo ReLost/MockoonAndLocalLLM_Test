@@ -19,7 +19,7 @@ namespace Immersion.MetaCouch.Networking
 
         public event Action OnResponseWaiting;
         public event Action<string> OnResponseReceivedSuccess;
-        public event Action OnResponseReceivedFailure;
+        public event Action<string> OnResponseReceivedFailure;
         public event Action OnResponseTimeout;
 
         public void SendRequest(string prompt, CancellationToken cancellationToken = default)
@@ -79,13 +79,13 @@ namespace Immersion.MetaCouch.Networking
                 else
                 {
                     Debug.LogError($"Request error: {webRequest.error}");
-                    OnResponseReceivedFailure?.Invoke();
+                    OnResponseReceivedFailure?.Invoke(webRequest.error);
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Network request failed: {ex.Message}");
-                OnResponseReceivedFailure?.Invoke();
+                OnResponseReceivedFailure?.Invoke(ex.Message);
             }
             finally
             {
@@ -108,6 +108,7 @@ namespace Immersion.MetaCouch.Networking
             }
             catch
             {
+                // ignored
             }
 
             OnResponseTimeout?.Invoke();

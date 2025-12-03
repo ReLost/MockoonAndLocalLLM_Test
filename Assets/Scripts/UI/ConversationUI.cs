@@ -139,9 +139,9 @@ namespace Immersion.MetaCouch.UI
                 : "<color=red>Something went wrong with CharacterData</color>";
         }
 
-        private void OnResponseError()
+        private void OnResponseError(string errorMessage)
         {
-            var message = "<color=red>Some connection/server error</color>";
+            var message = $"<color=red>Some connection/server error: {errorMessage}</color>";
             AddToConversation(message);
         }
 
