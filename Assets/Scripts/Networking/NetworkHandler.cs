@@ -1,6 +1,8 @@
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Immersion.MetaCouch.Data;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -10,8 +12,9 @@ namespace Immersion.MetaCouch.Networking
     public class NetworkHandler : ScriptableObject
     {
         [SerializeField] private string url = "http://localhost:3000/completition";
+        [SerializeField] private bool askOllama;
 
-        [SerializeField, Tooltip("Timeout in seconds")]
+        [SerializeField, Tooltip("Timeout in seconds, 0 means no timeout")]
         private float timeout = 5f;
 
         public event Action OnResponseWaiting;
@@ -19,37 +22,74 @@ namespace Immersion.MetaCouch.Networking
         public event Action OnResponseReceivedFailure;
         public event Action OnResponseTimeout;
 
-        public async Task SendRequest(CancellationToken cancellationToken = default)
+        public void SendRequest(string prompt, CancellationToken cancellationToken = default)
         {
             OnResponseWaiting?.Invoke();
 
+            _ = askOllama
+                ? SendRequestInternal(CreateOllamaRequest(prompt), cancellationToken)
+                : SendRequestInternal(CreateLocalhostRequest(), cancellationToken);
+        }
+
+        private UnityWebRequest CreateOllamaRequest(string prompt)
+        {
+            var request = new OllamaRequestData
+            {
+                model = "llama3", 
+                prompt = prompt
+            };
+            string json = JsonUtility.ToJson(request);
+
+            var webRequest = new UnityWebRequest(url, "POST");
+            webRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+            webRequest.downloadHandler = new DownloadHandlerBuffer();
+            webRequest.SetRequestHeader("Content-Type", "application/json");
+
+            return webRequest;
+        }
+
+        private UnityWebRequest CreateLocalhostRequest()
+        {
+            return UnityWebRequest.Get(url);
+        }
+
+        private async Task SendRequestInternal(UnityWebRequest webRequest, CancellationToken cancellationToken)
+        {
             try
             {
-                using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+                var operation = webRequest.SendWebRequest();
+                Task requestTask = WebRequestToTask(operation);
+
+                Task finished = timeout > 0
+                    ? await Task.WhenAny(requestTask, Task.Delay(TimeSpan.FromSeconds(timeout), cancellationToken))
+                    : await Task.WhenAny(requestTask);
+
+                if (timeout > 0 && finished != requestTask)
                 {
-                    var operation = webRequest.SendWebRequest();
+                    HandleTimeout(webRequest);
+                    return;
+                }
 
-                    Task requestTask = WebRequestToTask(operation);
-                    Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeout), cancellationToken);
+                await requestTask;
 
-                    Task finished = await Task.WhenAny(requestTask, timeoutTask);
-
-                    if (finished == requestTask)
-                    {
-                        await requestTask;
-
-                        HandleWebRequestFinished(webRequest);
-                    }
-                    else
-                    {
-                        HandleTimeout(webRequest);
-                    }
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    OnResponseReceivedSuccess?.Invoke(webRequest.downloadHandler.text);
+                }
+                else
+                {
+                    Debug.LogError($"Request error: {webRequest.error}");
+                    OnResponseReceivedFailure?.Invoke();
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Network request failed: {ex.Message}");
                 OnResponseReceivedFailure?.Invoke();
+            }
+            finally
+            {
+                webRequest.Dispose();
             }
         }
 
@@ -60,19 +100,6 @@ namespace Immersion.MetaCouch.Networking
             return tcs.Task;
         }
 
-        private void HandleWebRequestFinished(UnityWebRequest webRequest)
-        {
-            if (webRequest.result == UnityWebRequest.Result.Success)
-            {
-                string json = webRequest.downloadHandler.text;
-                OnResponseReceivedSuccess?.Invoke(json);
-            }
-            else
-            {
-                OnResponseReceivedFailure?.Invoke();
-            }
-        }
-
         private void HandleTimeout(UnityWebRequest webRequest)
         {
             try
@@ -81,7 +108,6 @@ namespace Immersion.MetaCouch.Networking
             }
             catch
             {
-                // ignored
             }
 
             OnResponseTimeout?.Invoke();
