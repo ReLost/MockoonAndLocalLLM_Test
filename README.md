@@ -232,4 +232,6 @@ This project includes **Speech-to-Text functionality**, allowing user speech to 
 We plan to introduce the following features in future versions of the project:
 
 - **Ollama model selection** – allowing the user to choose the AI model when sending prompts, providing more flexibility in generating responses.
-- **Add more languages to Speech-to-Text feature** - currently we suuport only english language, in the future this limitation should be solved
+- **Add more languages to Speech-to-Text feature** - currently we suuport only english language, in the future this limitation should be solved.
+- **Typewriter effect on responses** - to add more immersion (hehe) to the conversation and make it feel more believable
+- **Streaming Speech during recording** - text appearing partially during the recording instead of at the end.
