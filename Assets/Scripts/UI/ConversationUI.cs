@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Text;
 using Immersion.MetaCouch.Networking;
+using Immersion.MetaCouch.SpeechToText;
 using Immersion.MetaCouch.Utils;
 using TMPro;
 using UnityEngine;
@@ -29,13 +30,16 @@ namespace Immersion.MetaCouch.UI
         [SerializeField, Space(5)] private Toggle textToSpeechToggle;
         [SerializeField] private Button stopSpeakingButton;
 
-        [Header("Text To Speech")] [SerializeField]
-        private TextToSpeechController textToSpeechController;
+        [Header("Text To Speech")] 
+        [SerializeField] private TextToSpeechController textToSpeechController;
+        [Header("Speech To Text")] 
+        [SerializeField] private SpeechToTextController speechToTextController;
 
         [Header("Input")] 
         [SerializeField] private InputAction sendMessageInput;
         [SerializeField] private bool inputSendMessageToOllama = true;
         [SerializeField, Space(5)] private InputAction stopSpeakingInput;
+        [SerializeField, Space(5)] private InputAction recordingInput;
 
         private readonly StringBuilder currentHistory = new();
 
@@ -85,6 +89,9 @@ namespace Immersion.MetaCouch.UI
 
             stopSpeakingInput.Enable();
             stopSpeakingInput.performed += StopSpeakingOnButtonAction;
+            
+            recordingInput.Enable();
+            recordingInput.performed += StartStopRecordingOnButtonAction;
         }
 
         private void OnDestroy()
@@ -98,17 +105,23 @@ namespace Immersion.MetaCouch.UI
             sendMessageInput.performed -= SendRequestOnButtonAction;
             stopSpeakingInput.Disable();
             stopSpeakingInput.performed -= StopSpeakingOnButtonAction;
+            recordingInput.Disable();
+            recordingInput.performed -= StartStopRecordingOnButtonAction;
         }
 
         private void SendRequest(bool askOllama)
         {
             var message = messageInputField.text;
-            AddToConversation($"<color=red>[YOU]</color> {messageInputField.text}");
-            askedOllama = askOllama;
-            var currentNetworkHandler = askOllama ? ollamaNetworkHandler : networkHandler;
-            currentNetworkHandler.SendRequest(message);
-            messageInputField.text = string.Empty;
-            messageInputField.ActivateInputField();
+            
+            if(string.IsNullOrEmpty(message) == false)
+            {
+                AddToConversation($"<color=red>[YOU]</color> {messageInputField.text}");
+                askedOllama = askOllama;
+                var currentNetworkHandler = askOllama ? ollamaNetworkHandler : networkHandler;
+                currentNetworkHandler.SendRequest(message);
+                messageInputField.text = string.Empty;
+                messageInputField.ActivateInputField();
+            }
         }
 
         private void ShowWaitingForResponseIndicator()
@@ -225,6 +238,11 @@ namespace Immersion.MetaCouch.UI
             textToSpeechController.StopSpeaking();
             stopSpeakingButton.gameObject.SetActive(false);
         }
+
+        private void StartStopRecording()
+        {
+            speechToTextController.StartStopRecording();
+        }
         
         private void SendRequestOnButtonAction(InputAction.CallbackContext obj)
         {
@@ -234,6 +252,11 @@ namespace Immersion.MetaCouch.UI
         private void StopSpeakingOnButtonAction(InputAction.CallbackContext obj)
         {
             StopSpeaking();
+        }
+
+        private void StartStopRecordingOnButtonAction(InputAction.CallbackContext obj)
+        {
+            StartStopRecording();
         }
     }
 }
