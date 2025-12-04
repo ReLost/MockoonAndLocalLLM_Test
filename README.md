@@ -13,7 +13,12 @@ It provides a complete workflow for handling web requests, parsing incoming data
 - [User Interface — `ConversationUI` and `CharacterUI`](#user-interface--conversationui-and-characterui)
 - [Character Animation — `CharacterAnimatorController`](#character-animation--characteranimatorcontroller)
 - [Data Structures](#data-structures)
+  - [WebRequest Data](#webrequest-data)
+  - [Character Data](#character-data)
 - [Adding New Features](#adding-new-features)
+  - [Adding a New Character Animation](#adding-a-new-character-animation)
+  - [Handling a New URL Endpoint](#handling-a-new-url-endpoint)
+-  [Text-to-Speech (TTS)](#text-to-speech-tts)
 ---
 
 ## Unity Version
@@ -86,11 +91,14 @@ Responsible for the chat-related UI:
 - Ability to send messages via keyboard shortcut  
 - Easily extendable to support additional input devices, **including new inputs from other external devices**  
 - **Device input can be configured to send messages either to Ollama or to the local host bot**, allowing flexible routing of user input.
+- Optional **Text-to-Speech support**, allowing received responses to be spoken aloud
+<img width="842" height="416" alt="Zrzut ekranu 2025-12-04 050410" src="https://github.com/user-attachments/assets/f4163f41-2fe8-4be1-83e4-5dc7c2d34885" />
 
 ### `CharacterUI`
 
 Currently manages the character satisfaction bar:
 - Its color reflects the current satisfaction value
+<img width="523" height="936" alt="Zrzut ekranu 2025-12-04 050316" src="https://github.com/user-attachments/assets/63bacb61-d3ca-4757-9c0a-1bcab78130cd" />
 
 ---
 
@@ -191,4 +199,13 @@ To handle a new server endpoint:
      <img width="901" height="276" alt="Zrzut ekranu 2025-12-04 010457" src="https://github.com/user-attachments/assets/e586858f-6cb5-4759-8dea-a4978b342649" />
      <img width="817" height="141" alt="Zrzut ekranu 2025-12-04 010527" src="https://github.com/user-attachments/assets/8bf68367-18f3-493d-a8f9-881cb1beec3e" />
 
+---
+
+## Text-to-Speech (TTS)
+
+This project includes **Text-to-Speech functionality** for reading aloud received responses from the chat.  
+
+- The TTS implementation is based on the model: [Jets Text-to-Speech](https://huggingface.co/unity/inference-engine-jets-text-to-speech) from Hugging Face.  
+- It has been integrated into the project with minor modifications to fit the existing Unity workflow and UI.  
+- TTS can be enabled via the **ConversationUI**, allowing messages received from either Ollama or the local host bot to be spoken aloud.  
 
