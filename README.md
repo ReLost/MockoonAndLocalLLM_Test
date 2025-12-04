@@ -20,6 +20,7 @@ Also supports Text-To-Speech and Speech-To-Text functionallity
   - [Adding a New Character Animation](#adding-a-new-character-animation)
   - [Handling a New URL Endpoint](#handling-a-new-url-endpoint)
   - [Improving STT AI Model](#improving-stt-ai-model)
+-  [Ollama](#ollama)
 -  [Text-to-Speech (TTS)](#text-to-speech-tts)
 -  [Speech-to-Text (STT)](#speech-to-text-stt)
 -  [Known Issues](#known-issues)
@@ -211,6 +212,20 @@ To handle a new server endpoint:
 ### Improving STT AI Model
 
 1. The AI ​​model responsible for STT quality is located in the Streaming Assets folder, so we can easily replace the model with a better one, even without creating a new build.
+
+---
+
+## Ollama
+
+This project uses **Ollama** as one of the core response providers for the chat system.
+
+- Ollama is fully **integrated locally**, allowing the application to generate AI responses
+- The system communicates with the local Ollama server through the `NetworkHandler`  
+- Any prompt typed (or spoken via STT) can be routed to Ollama depending on the ConversationUI configuration.  
+
+You can download and install Ollama from the official website:  
+https://ollama.com/
+
 ---
 
 ## Text-to-Speech (TTS)
