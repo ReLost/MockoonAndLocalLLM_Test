@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Immersion.MetaCouch.Networking.NetworkHandler
   url: http://localhost:11434/api/generate
   askOllama: 1
-  timeout: 55
+  timeout: 0
