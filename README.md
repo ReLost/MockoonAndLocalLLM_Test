@@ -19,6 +19,7 @@ It provides a complete workflow for handling web requests, parsing incoming data
   - [Adding a New Character Animation](#adding-a-new-character-animation)
   - [Handling a New URL Endpoint](#handling-a-new-url-endpoint)
 -  [Text-to-Speech (TTS)](#text-to-speech-tts)
+-  [Roadmap](#roadmap)
 ---
 
 ## Unity Version
@@ -208,4 +209,13 @@ This project includes **Text-to-Speech functionality** for reading aloud receive
 - The TTS implementation is based on the model: [Jets Text-to-Speech](https://huggingface.co/unity/inference-engine-jets-text-to-speech) from Hugging Face.  
 - It has been integrated into the project with minor modifications to fit the existing Unity workflow and UI.  
 - TTS can be enabled via the **ConversationUI**, allowing messages received from either Ollama or the local host bot to be spoken aloud.  
+
+---
+
+## Roadmap
+
+We plan to introduce the following features in future versions of the project:
+
+- **Speech-to-Text (STT)** – ability to recognize user speech and send it as text to the system.  
+- **Ollama model selection** – allowing the user to choose the AI model when sending prompts, providing more flexibility in generating responses.
 
