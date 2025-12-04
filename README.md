@@ -21,6 +21,7 @@ It provides a complete workflow for handling web requests, parsing incoming data
 -  [Text-to-Speech (TTS)](#text-to-speech-tts)
 -  [Speech-to-Text (STT)](#speech-to-text-stt)
 -  [Known Issues](#known-issues)
+-  [Application in action](#application-in-action)
 -  [Roadmap](#roadmap)
 ---
 
@@ -233,6 +234,11 @@ This project includes **Speech-to-Text functionality**, allowing user speech to 
 - **Text-to-Speech has problem with very long responses** - currently workaround -> skip reading the problematic issue and reset the model to work correctly with the next responses
 
 ---
+
+## Application in action
+
+https://github.com/user-attachments/assets/8c3d2605-c098-433b-a9d0-7d8bf9296fa3
+
 
 ## Roadmap
 
