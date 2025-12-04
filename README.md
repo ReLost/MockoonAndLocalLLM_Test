@@ -13,7 +13,7 @@ It provides a complete workflow for handling web requests, parsing incoming data
 - [User Interface — `ConversationUI` and `CharacterUI`](#user-interface--conversationui-and-characterui)
 - [Character Animation — `CharacterAnimatorController`](#character-animation--characteranimatorcontroller)
 - [Data Structures](#data-structures)
-
+- [Adding New Features](#adding-new-features)
 ---
 
 ## Unity Version
