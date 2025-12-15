@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2142ee57c076624f8a27b4a12981403, type: 3}
   m_Name: NetworkHandlerOllama
   m_EditorClassIdentifier: Assembly-CSharp::Immersion.MetaCouch.Networking.OllamaNetworkHandler
-  url: http://localhost:3000/completition
-  timeout: 5
+  url: http://localhost:11434/api/generate
+  timeout: 25
