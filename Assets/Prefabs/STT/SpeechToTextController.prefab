@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Whisper.Samples.SpeechToTextController
   whisper: {fileID: 2656756447210147097}
   microphoneRecord: {fileID: 7640293937162924229}
-  streamSegments: 1
+  streamSegments: 0
   recordButton: {fileID: 0}
   buttonText: {fileID: 0}
   inputField: {fileID: 0}
@@ -77,7 +77,7 @@ MonoBehaviour:
   singleSegment: 1
   enableTokens: 1
   initialPrompt: 
-  stepSec: 3
+  stepSec: 2
   keepSec: 0.2
   lengthSec: 10
   updatePrompt: 1
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: com.whisper.unity::Whisper.Utils.MicrophoneRecord
   maxLengthSec: 60
-  loop: 0
+  loop: 1
   frequency: 16000
   chunksLengthSec: 0.5
   echo: 1

@@ -22,25 +22,66 @@ namespace Immersion.MetaCouch.SpeechToText
         [SerializeField] private TMP_InputField inputField;
         
         private string _buffer;
+        
+        private WhisperStream _stream;
 
         private void Awake()
         {
-            whisper.OnNewSegment += OnNewSegment;
-            
             microphoneRecord.OnRecordStop += OnRecordStop;
             
             recordButton.onClick.AddListener(OnButtonPressed);
+        }
+        
+        private async void Start()
+        {
+            if (streamSegments  == false|| whisper == null || microphoneRecord == null)
+                return;
+
+            _stream = await whisper.CreateStream(microphoneRecord);
+
+            _stream.OnSegmentUpdated += OnStreamSegmentUpdated;
+            _stream.OnSegmentFinished += OnStreamSegmentFinished;
+        }
+        
+        private void OnStreamSegmentUpdated(WhisperResult result)
+        {
+            if (inputField == null || result == null)
+                return;
+            
+            _buffer += result.Result;
+            inputField.text = result.Result + "...";
+        }
+
+        private void OnStreamSegmentFinished(WhisperResult result)
+        {
+            if (inputField == null || result == null)
+                return;
+
+            inputField.ActivateInputField();
+            inputField.text = _buffer;
         }
 
         public void StartStopRecording()
         {
             if (microphoneRecord.IsRecording == false)
             {
+                _buffer = "";
                 microphoneRecord.StartRecord();
+                
+                if (streamSegments && _stream != null)
+                {
+                    _stream.StartStream();
+                }
+                
                 buttonText.text = "<color=red>Stop • [`~]</color>";
             }
             else
             {
+                if (streamSegments && _stream != null)
+                {
+                    _stream.StopStream();
+                }
+                
                 microphoneRecord.StopRecord();
                 buttonText.text = "Record [`~]";
             }
@@ -54,6 +95,11 @@ namespace Immersion.MetaCouch.SpeechToText
         private async void OnRecordStop(AudioChunk recordedAudio)
         {
             buttonText.text = "Record";
+            
+            // In streaming mode we do NOT run one-shot transcription on stop
+            if (streamSegments)
+                return;
+            
             _buffer = "";
 
             var sw = new Stopwatch();
@@ -67,21 +113,16 @@ namespace Immersion.MetaCouch.SpeechToText
             inputField.text = res.Result;
         }
         
-        
-        private void OnNewSegment(WhisperSegment segment)
-        {
-            if (streamSegments == false || inputField == null)
-                return;
-
-            _buffer += segment.Text;
-            inputField.text = _buffer + "...";
-        }
 
         private void OnDestroy()
         {
-            whisper.OnNewSegment -= OnNewSegment;
-            
             microphoneRecord.OnRecordStop -= OnRecordStop;
+            
+            if (_stream != null)
+            {
+                _stream.OnSegmentUpdated -= OnStreamSegmentUpdated;
+                _stream.OnSegmentFinished -= OnStreamSegmentFinished;
+            }
         }
     }
 }
