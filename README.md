@@ -2,6 +2,7 @@
 
 This project was built using **Unity 6000.2.14f1**.  
 It provides a complete workflow for handling web requests, parsing incoming data, controlling UI elements, and managing character animations based on data received from WebRequests.
+Also supports Text-To-Speech and Speech-To-Text functionallity
 
 ---
 
@@ -18,6 +19,8 @@ It provides a complete workflow for handling web requests, parsing incoming data
 - [Adding New Content](#adding-new-content)
   - [Adding a New Character Animation](#adding-a-new-character-animation)
   - [Handling a New URL Endpoint](#handling-a-new-url-endpoint)
+  - [Improving STT AI Model](#improving-stt-ai-model)
+-  [Ollama](#ollama)
 -  [Text-to-Speech (TTS)](#text-to-speech-tts)
 -  [Speech-to-Text (STT)](#speech-to-text-stt)
 -  [Known Issues](#known-issues)
@@ -206,6 +209,25 @@ To handle a new server endpoint:
 
 ---
 
+### Improving STT AI Model
+
+1. The AI ​​model responsible for STT quality is located in the Streaming Assets folder, so we can easily replace the model with a better one, even without creating a new build.
+
+---
+
+## Ollama
+
+This project uses **Ollama** as one of the core response providers for the chat system.
+
+- Ollama is fully **integrated locally**, allowing the application to generate AI responses
+- The system communicates with the local Ollama server through the `NetworkHandler`  
+- Any prompt typed (or spoken via STT) can be routed to Ollama depending on the ConversationUI configuration.  
+
+You can download and install Ollama from the official website:  
+https://ollama.com/
+
+---
+
 ## Text-to-Speech (TTS)
 
 This project includes **Text-to-Speech functionality** for reading aloud received responses from the chat.  
@@ -226,6 +248,7 @@ This project includes **Speech-to-Text functionality**, allowing user speech to 
 - Recognized spoken input is displayed in the **ConversationUI input field**, ready to be edited or sent.  
 - Fully integrated with ConversationUI, following the same workflow as Text-to-Speech.
 - Recording can be started and stopped by pressing [`~] button
+- The AI ​​model on which the solution is based is located in the Streaming Assets folder, so in the future you can also replace the model with a better one to improve the quality of STT without creating a new build 
 
 ---
 
@@ -245,6 +268,7 @@ https://github.com/user-attachments/assets/8c3d2605-c098-433b-a9d0-7d8bf9296fa3
 We plan to introduce the following features in future versions of the project:
 
 - **Ollama model selection** – allowing the user to choose the AI model when sending prompts, providing more flexibility in generating responses.
-- **Add more languages to Speech-to-Text feature** - currently we suuport only english language, in the future this limitation should be solved.
+- **Add more languages to Speech-to-Text feature** - currently we suport only english language, in the future this limitation should be solved.
 - **Typewriter effect on responses** - to add more immersion (hehe) to the conversation and make it feel more believable
 - **Streaming Speech during recording** - text appearing partially during the recording instead of at the end.
+- **Move AI Model for TTS to Streaming Assets** - to allow easily improving the quality of TTS without creating anew build
