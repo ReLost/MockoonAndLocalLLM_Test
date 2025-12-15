@@ -1,15 +1,22 @@
 # Project Overview
 
-This project was built using **Unity 6000.2.14f1**.  
-It provides a complete workflow for handling web requests, parsing incoming data, controlling UI elements, and managing character animations based on data received from WebRequests.
-Also supports Text-To-Speech and Speech-To-Text functionallity
+This project was built using **Unity 6000.2.14f1** and updated to **Unity 6000.3.1f1**.  
+
+It provides a complete workflow for handling web requests, parsing incoming data, controlling UI elements, and managing character animations based on data received from WebRequests.  
+
+The project includes support for **local Large Language Models (LLMs)** via **Ollama**.  
+
+It also supports **Text-To-Speech (TTS)** and **Speech-To-Text (STT)** functionality, both implemented using  
+[**Unity AI Inference**](https://docs.unity3d.com/Packages/com.unity.ai.inference@2.2/manual/index.html).
 
 ---
 
 ## Table of Contents
 
 - [Unity Version](#unity-version)
-- [Web Request Handling — `NetworkHandler`](#web-request-handling--networkhandler)
+- [Web Request Handling](#web-request-handling)
+  - [Network Handler](#networkhandler)
+  - [Ollama Network Handler](#ollamanetworkhandler)
 - [Data Parsing — `DataParser`](#data-parsing--dataparser)
 - [User Interface — `ConversationUI` and `CharacterUI`](#user-interface--conversationui-and-characterui)
 - [Character Animation — `CharacterAnimatorController`](#character-animation--characteranimatorcontroller)
@@ -20,7 +27,9 @@ Also supports Text-To-Speech and Speech-To-Text functionallity
   - [Adding a New Character Animation](#adding-a-new-character-animation)
   - [Handling a New URL Endpoint](#handling-a-new-url-endpoint)
   - [Improving STT AI Model](#improving-stt-ai-model)
+-  [Mockoon](#mockoon)
 -  [Ollama](#ollama)
+-  [External Libraries](#external-libraries)
 -  [Text-to-Speech (TTS)](#text-to-speech-tts)
 -  [Speech-to-Text (STT)](#speech-to-text-stt)
 -  [Known Issues](#known-issues)
@@ -30,17 +39,23 @@ Also supports Text-To-Speech and Speech-To-Text functionallity
 
 ## Unity Version
 
-This project was created and tested with:
-
+This project was created with:
 **Unity 6000.2.14f1**
+
+Also tested on:
+**Unity 6000.3.1f1**
 
 For best compatibility, use the same or a newer 6000.x version.
 
+> [!NOTE]
+> The project was updated to version **6000.3.1f1** to take advantage of the **HTTP/2 protocol support enabled by default**, which provides better performance and efficiency for web communication.
+
 ---
 
-## Web Request Handling — `NetworkHandler`
+## Web Request Handling
 
-<img width="816" height="141" alt="Zrzut ekranu 2025-12-04 004651" src="https://github.com/user-attachments/assets/a0d08021-b8ea-4a5e-a2dc-8796b648ad66" />
+### `NetworkHandler`
+<img width="814" height="151" alt="Zrzut ekranu 2025-12-15 152647" src="https://github.com/user-attachments/assets/e82770b0-745a-49c8-9ece-af68fba27910" />
 
 All communication with the server is managed through the **NetworkHandler** script.  
 It exposes four events that allow you to hook into different stages of the WebRequest lifecycle:
@@ -52,12 +67,12 @@ public event Action<string> OnResponseReceivedFailure;
 public event Action OnResponseTimeout;
 ```
 
-### Features
+#### Features
 
 - **Support for sending requests to a local Ollama instance**, enabling local AI responses.  
 - **The timeout duration can be configured directly from the Unity Inspector**, allowing easy adjustments without modifying code.  
 
-### Event Descriptions
+#### Event Descriptions
 
 - **OnResponseWaiting**  
   Triggered while waiting for a response.
@@ -72,6 +87,18 @@ public event Action OnResponseTimeout;
 
 - **OnResponseTimeout**  
   Triggered if the response exceeds the expected timeout duration.
+
+### `OllamaNetworkHandler`
+A specialized handler inheriting from `NetworkHandler`, dedicated exclusively to Ollama.
+<img width="817" height="192" alt="Zrzut ekranu 2025-12-15 152709" src="https://github.com/user-attachments/assets/6b67d79c-0eda-4970-a4e9-7535d22063f5" />
+
+**Features:**
+- **StreamingResponse (bool):** Toggleable in the Unity Inspector. Processes data as it arrives.
+
+#### Event Descriptions
+
+- **OnResponseChunkReceived**  
+  Triggers every time a new data chunk is received, allowing for real-time text display without waiting for the full message.
 
 ---
 
@@ -99,7 +126,7 @@ Responsible for the chat-related UI:
 - Easily extendable to support additional input devices, **including new inputs from other external devices**  
 - **Device input can be configured to send messages either to Ollama or to the local host bot**, allowing flexible routing of user input.
 - **Text-to-Speech support**, allowing received responses to be spoken aloud
-- **Speech-to-Text support*, you can use your microphone to enter message to input field
+- **Speech-to-Text support**, you can use your microphone to enter message to input field
 <img width="838" height="368" alt="Zrzut ekranu 2025-12-04 071030" src="https://github.com/user-attachments/assets/ed3d10e8-27de-4d60-948e-d7e08849543a" />
 
 ### `CharacterUI`
@@ -148,6 +175,7 @@ These structures are used for sending requests and parsing responses from WebReq
 - **Fields:**
   - `model` (**string**) — the Ollama model to use.
   - `prompt` (**string**) — the text prompt to send to Ollama.
+  - `stream` (**bool**) - determines if the response should be streamed chunk-by-chunk.
 
 #### `OllamaResponseData`
 - **Purpose:** Represents a single chunk of data returned by Ollama.  
@@ -202,7 +230,7 @@ To handle a new server endpoint:
 
 1. **Create a new ScriptableObject for the `NetworkHandler`**
    - Set the endpoint URL in the ScriptableObject.
-   - For basic GET/POST requests, it should work without further modifications.
+   - For basic GET requests, it should work without further modifications.
    - Ensure the event handlers (`OnResponseReceivedSuccess`, `OnResponseReceivedFailure`, etc.) are subscribed in your scripts to handle the responses.
      <img width="901" height="276" alt="Zrzut ekranu 2025-12-04 010457" src="https://github.com/user-attachments/assets/e586858f-6cb5-4759-8dea-a4978b342649" />
      <img width="817" height="141" alt="Zrzut ekranu 2025-12-04 010527" src="https://github.com/user-attachments/assets/8bf68367-18f3-493d-a8f9-881cb1beec3e" />
@@ -212,6 +240,13 @@ To handle a new server endpoint:
 ### Improving STT AI Model
 
 1. The AI ​​model responsible for STT quality is located in the Streaming Assets folder, so we can easily replace the model with a better one, even without creating a new build.
+
+---
+
+## Mockoon
+
+For testing WebRequests and simulating server responses during development, this project uses **[Mockoon](https://mockoon.com/)**.  
+A **custom endpoint** with a **custom response body** was created in Mockoon, which is read and processed by the project, allowing realistic testing of network interactions without relying on a live server.
 
 ---
 
@@ -225,6 +260,15 @@ This project uses **Ollama** as one of the core response providers for the chat 
 
 You can download and install Ollama from the official website:  
 https://ollama.com/
+
+---
+
+## External Libraries
+
+The project utilizes the following external libraries and models:
+
+* **Speech-To-Text (STT):** [Whisper.Unity](https://github.com/Macoron/whisper.unity) – High-performance on-device speech recognition.
+* **Text-To-Speech (TTS):** [Jets Text-to-Speech](https://huggingface.co/unity/inference-engine-jets-text-to-speech) – An inference engine for high-quality voice synthesis.
 
 ---
 
@@ -269,6 +313,5 @@ We plan to introduce the following features in future versions of the project:
 
 - **Ollama model selection** – allowing the user to choose the AI model when sending prompts, providing more flexibility in generating responses.
 - **Add more languages to Speech-to-Text feature** - currently we suport only english language, in the future this limitation should be solved.
-- **Typewriter effect on responses** - to add more immersion (hehe) to the conversation and make it feel more believable
 - **Streaming Speech during recording** - text appearing partially during the recording instead of at the end.
 - **Move AI Model for TTS to Streaming Assets** - to allow easily improving the quality of TTS without creating anew build
