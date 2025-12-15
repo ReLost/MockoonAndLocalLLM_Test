@@ -17,6 +17,7 @@ It also supports **Text-To-Speech (TTS)** and **Speech-To-Text (STT)** functiona
 - [Web Request Handling](#web-request-handling)
   - [Network Handler](#networkhandler)
   - [Ollama Network Handler](#ollamanetworkhandler)
+  - [Streaming Download Handler](#streamingdownloadhandler)
 - [Data Parsing — `DataParser`](#data-parsing--dataparser)
 - [User Interface — `ConversationUI` and `CharacterUI`](#user-interface--conversationui-and-characterui)
 - [Character Animation — `CharacterAnimatorController`](#character-animation--characteranimatorcontroller)
@@ -92,13 +93,22 @@ public event Action OnResponseTimeout;
 A specialized handler inheriting from `NetworkHandler`, dedicated exclusively to Ollama.
 <img width="817" height="192" alt="Zrzut ekranu 2025-12-15 152709" src="https://github.com/user-attachments/assets/6b67d79c-0eda-4970-a4e9-7535d22063f5" />
 
-**Features:**
+#### Features
 - **StreamingResponse (bool):** Toggleable in the Unity Inspector. Processes data as it arrives.
 
 #### Event Descriptions
 
 - **OnResponseChunkReceived**  
   Triggers every time a new data chunk is received, allowing for real-time text display without waiting for the full message.
+
+### `StreamingDownloadHandler`
+
+The `StreamingDownloadHandler` class inherits from `DownloadHandlerScript` and is responsible for handling **streamed response chunks**.  
+It allows the project to process incoming data **chunk by chunk**, enabling real-time updates in the UI without waiting for the full response.
+
+#### Usage
+- Works together with `OllamaNetworkHandler` when `StreamingResponse` is enabled.
+- Each received chunk is forwarded via the `OnResponseChunkReceived` event.
 
 ---
 
