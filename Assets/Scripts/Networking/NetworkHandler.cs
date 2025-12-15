@@ -1,8 +1,6 @@
 using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Immersion.MetaCouch.Data;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,8 +9,8 @@ namespace Immersion.MetaCouch.Networking
     [CreateAssetMenu(fileName = "NetworkHandlerSO", menuName = "Networking/NetworkHandler")]
     public class NetworkHandler : ScriptableObject
     {
-        [SerializeField] private string url = "http://localhost:3000/completition";
-        [SerializeField] private bool askOllama;
+        [SerializeField] 
+        protected string url = "http://localhost:3000/completition";
 
         [SerializeField, Tooltip("Timeout in seconds, 0 means no timeout")]
         private float timeout = 5f;
@@ -26,29 +24,11 @@ namespace Immersion.MetaCouch.Networking
         {
             OnResponseWaiting?.Invoke();
 
-            _ = askOllama
-                ? SendRequestInternal(CreateOllamaRequest(prompt), cancellationToken)
-                : SendRequestInternal(CreateLocalhostRequest(), cancellationToken);
+            _ = SendRequestInternal(CreateRequest(prompt), cancellationToken);
+
         }
 
-        private UnityWebRequest CreateOllamaRequest(string prompt)
-        {
-            var request = new OllamaRequestData
-            {
-                model = "llama3", 
-                prompt = prompt
-            };
-            string json = JsonUtility.ToJson(request);
-
-            var webRequest = new UnityWebRequest(url, "POST");
-            webRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
-            webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.SetRequestHeader("Content-Type", "application/json");
-
-            return webRequest;
-        }
-
-        private UnityWebRequest CreateLocalhostRequest()
+        protected virtual UnityWebRequest CreateRequest(string prompt)
         {
             return UnityWebRequest.Get(url);
         }

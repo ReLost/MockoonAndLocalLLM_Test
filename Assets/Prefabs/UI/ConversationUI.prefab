@@ -1975,7 +1975,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Immersion.MetaCouch.UI.ConversationUI
   networkHandler: {fileID: 11400000, guid: e1d4bc11dd8dd5b4ba1411dace8c41d0, type: 2}
-  ollamaNetworkHandler: {fileID: 11400000, guid: c9595ab63d1f2724e87f2cdbce936491, type: 2}
+  ollamaNetworkHandler: {fileID: 11400000, guid: b918de6dadad5874ca648f197bbf75f2, type: 2}
   dataParser: {fileID: 11400000, guid: 79f5849abd060f149b8dca70544e4583, type: 2}
   conversationHistory: {fileID: 5528263107387306851}
   messageInputField: {fileID: 1551337077114724108}
