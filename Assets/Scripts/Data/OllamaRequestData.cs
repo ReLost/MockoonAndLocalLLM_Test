@@ -7,5 +7,6 @@ namespace Immersion.MetaCouch.Data
     {
         public string model;
         public string prompt;
+        public bool stream;
     }
 }

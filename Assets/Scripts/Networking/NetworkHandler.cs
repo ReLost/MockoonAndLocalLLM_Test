@@ -9,6 +9,7 @@ namespace Immersion.MetaCouch.Networking
     [CreateAssetMenu(fileName = "NetworkHandlerSO", menuName = "Networking/NetworkHandler")]
     public class NetworkHandler : ScriptableObject
     {
+        [Header("General")]
         [SerializeField] 
         protected string url = "http://localhost:3000/completition";
 

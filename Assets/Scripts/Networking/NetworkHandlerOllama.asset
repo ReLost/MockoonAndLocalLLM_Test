@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Immersion.MetaCouch.Networking.OllamaNetworkHandler
   url: http://localhost:11434/api/generate
   timeout: 25
+  streamingResponse: 1

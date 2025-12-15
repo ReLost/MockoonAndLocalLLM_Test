@@ -16,7 +16,7 @@ namespace Immersion.MetaCouch.UI
         [Header("External References")] [SerializeField]
         private NetworkHandler networkHandler;
 
-        [SerializeField] private NetworkHandler ollamaNetworkHandler;
+        [SerializeField] private OllamaNetworkHandler ollamaNetworkHandler;
 
         [SerializeField] private DataParser dataParser;
 
@@ -77,7 +77,8 @@ namespace Immersion.MetaCouch.UI
             networkHandler.OnResponseTimeout += OnResponseTimeout;
 
             ollamaNetworkHandler.OnResponseWaiting += ShowWaitingForResponseIndicator;
-            ollamaNetworkHandler.OnResponseReceivedSuccess += UpdateMessage;
+            ollamaNetworkHandler.OnResponseChunkReceived += UpdateMessageStreaming;
+            ollamaNetworkHandler.OnResponseReceivedSuccess += OnResponseReceivedSuccess;
             ollamaNetworkHandler.OnResponseReceivedFailure += OnResponseError;
             ollamaNetworkHandler.OnResponseTimeout += OnResponseTimeout;
         }
@@ -100,6 +101,12 @@ namespace Immersion.MetaCouch.UI
             networkHandler.OnResponseReceivedSuccess -= UpdateMessage;
             networkHandler.OnResponseReceivedFailure -= OnResponseError;
             networkHandler.OnResponseTimeout -= OnResponseTimeout;
+            
+            ollamaNetworkHandler.OnResponseWaiting -= ShowWaitingForResponseIndicator;
+            ollamaNetworkHandler.OnResponseChunkReceived -= UpdateMessageStreaming;
+            ollamaNetworkHandler.OnResponseReceivedSuccess -= OnResponseReceivedSuccess;
+            ollamaNetworkHandler.OnResponseReceivedFailure -= OnResponseError;
+            ollamaNetworkHandler.OnResponseTimeout -= OnResponseTimeout;
 
             sendMessageInput.Disable();
             sendMessageInput.performed -= SendRequestOnButtonAction;
@@ -109,13 +116,24 @@ namespace Immersion.MetaCouch.UI
             recordingInput.performed -= StartStopRecordingOnButtonAction;
         }
 
+        private void OnResponseReceivedSuccess(string responseMessage)
+        {
+            if(ollamaNetworkHandler.StreamingResponse)
+            {
+                TryReadResponseStreaming(responseMessage);
+                return;
+            }
+
+            UpdateMessage(responseMessage);
+        }
+
         private void SendRequest(bool askOllama)
         {
             var message = messageInputField.text;
             
             if(string.IsNullOrEmpty(message) == false)
             {
-                AddToConversation($"<color=red>[YOU]</color> {messageInputField.text}");
+                AddToConversation($"\n<color=red>[YOU]</color> {messageInputField.text}");
                 askedOllama = askOllama;
                 var currentNetworkHandler = askOllama ? ollamaNetworkHandler : networkHandler;
                 currentNetworkHandler.SendRequest(message);
@@ -126,6 +144,9 @@ namespace Immersion.MetaCouch.UI
 
         private void ShowWaitingForResponseIndicator()
         {
+            var prefix = askedOllama ? "\n<color=purple>[OLLAMA]</color> " : "\n<color=blue>[BOT]</color> ";
+            AddToConversation(prefix);
+            
             if (waitingCoroutine != null)
                 StopCoroutine(waitingCoroutine);
 
@@ -149,11 +170,22 @@ namespace Immersion.MetaCouch.UI
             }
         }
 
+        private void UpdateMessageStreaming(string responseMessage)
+        {
+            var message = GetParsedMessage(responseMessage);
+            AddToConversation(message);
+        }
+
+        private void TryReadResponseStreaming(string responseMessage)
+        {
+            var message = GetParsedMessage(responseMessage);
+            TryReadResponse(message);
+        }
+
         private void UpdateMessage(string responseMessage)
         {
             var message = GetParsedMessage(responseMessage);
-            var prefix = askedOllama ? "<color=purple>[OLLAMA]</color>" : "<color=blue>[BOT]</color>";
-            AddToConversation($"{prefix} {message}");
+            AddToConversation(message);
             TryReadResponse(message);
         }
 
@@ -219,8 +251,8 @@ namespace Immersion.MetaCouch.UI
                 waitingCoroutine = null;
                 waitingDotsBuilder.Length = 0;
             }
-
-            currentHistory.Append($"{message}\n");
+            
+            currentHistory.Append(message);
             conversationHistory.text = currentHistory.ToString();
         }
 
